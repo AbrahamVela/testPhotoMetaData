@@ -14,43 +14,80 @@
 
     @*    Read image from file*@
 
+    @* @{ *@
+    @* *@
+    @*     var image = new MagickImage("C:\\Users\\ayane\\Desktop\\work\\School\\WOU\\oregon turtles\\testPhotoMetaData\\PhotoMetaData\\PhotoMetaData\\wwwroot\\Image\\IMG_4412.HEIC"); *@
+    @* *@
+    @*     var profile = image.GetExifProfile(); *@
+    @*     var lat = profile.GetValue(ExifTag.GPSLatitude); *@
+    @* *@
+    @*     var thing = "string"; *@
+    @*     <p>@thing</p> *@
+    @*      *@
+    @*      *@
+    @* *@
+    @*     // Retrieve the exif information *@
+    @*     // var profile = image.GetExifProfile(); *@
+    @*     // *@
+    @*     // // Check if image contains an exif profile *@
+    @*     // if (profile is null) *@
+    @*     //     Console.WriteLine("Image does not contain exif information."); *@
+    @*     // else *@
+    @*     // { *@
+    @*     //     // Write all values to the console *@
+    @*     //     foreach (var value in profile.Values) *@
+    @*     //     { *@
+    @*     //         // <p>this is the tag @value.Tag</p> *@
+    @*     //         // *@
+    @*     //         // <br /> *@
+    @*     //         // <p>This is the DataType @value.DataType</p> *@
+    @*     //         // *@
+    @*     //         // <br /> *@
+    @*     //         // <p>This is the value .ToString @value.ToString()</p> *@
+    @*     //         // // Console.WriteLine("{0}({1}): {2}", value.Tag, value.DataType, value.ToString()); *@
+    @*     // *@
+    @*     //         Console.WriteLine($"Image width is: {image.Width}"); *@
+    @*     //     } *@
+    @*     // } *@
+    @* *@
+    @* } *@
+    
+    
+    //1
     @{
-    
-        var image = new MagickImage("C:\\Users\\ayane\\Desktop\\work\\School\\WOU\\oregon turtles\\testPhotoMetaData\\PhotoMetaData\\PhotoMetaData\\wwwroot\\Image\\IMG_4412.HEIC");
+        using (MagickImage image = new MagickImage("C:\\Users\\ayane\\Desktop\\work\\School\\WOU\\oregon turtles\\testPhotoMetaData\\PhotoMetaData\\PhotoMetaData\\wwwroot\\Image\\IMG_4412.HEIC"))
+        {
+            var exifData = image.GetExifProfile();
 
-        var profile = image.GetExifProfile();
+            if (exifData != null)
+            {
+                //2  
+                var gpsLong = exifData.GetValue(ExifTag.GPSLongitude);
+                var gpsLongRef = exifData.GetValue(ExifTag.GPSLongitudeRef);
+                var gpsLatitude = exifData.GetValue(ExifTag.GPSLatitude);
+                var gpsLatitudeRef = exifData.GetValue(ExifTag.GPSLatitudeRef);
 
-        var thing = "string";
-        <p>@thing</p>
-        
-        
+                var longitude = GetCoordinates(gpsLongRef.ToString(), gpsLong.Value);
+                var latitude = GetCoordinates(gpsLatitudeRef.ToString(), gpsLatitude.Value);
 
-        // Retrieve the exif information
-        // var profile = image.GetExifProfile();
-        //
-        // // Check if image contains an exif profile
-        // if (profile is null)
-        //     Console.WriteLine("Image does not contain exif information.");
-        // else
-        // {
-        //     // Write all values to the console
-        //     foreach (var value in profile.Values)
-        //     {
-        //         // <p>this is the tag @value.Tag</p>
-        //         //
-        //         // <br />
-        //         // <p>This is the DataType @value.DataType</p>
-        //         //
-        //         // <br />
-        //         // <p>This is the value .ToString @value.ToString()</p>
-        //         // // Console.WriteLine("{0}({1}): {2}", value.Tag, value.DataType, value.ToString());
-        //
-        //         Console.WriteLine($"Image width is: {image.Width}");
-        //     }
-        // }
-    
+                <p>Longitude is: @longitude</p>
+                <p>Latitude is: @latitude</p>
+            }
+        }
+
+        //3     
+        static double GetCoordinates(string gpsRef, Rational[] rationals)
+        {
+            double degrees = rationals[0].Numerator / rationals[0].Denominator;
+            double minutes = rationals[1].Numerator / rationals[1].Denominator;
+            double seconds = rationals[2].Numerator / rationals[2].Denominator;
+
+            double coordinate = degrees + (minutes / 60d) + (seconds / 3600d);
+            if (gpsRef == "S" || gpsRef == "W")
+                coordinate *= -1;
+            return coordinate;
+        }
+
     }
-    
-    
 
 </div>
